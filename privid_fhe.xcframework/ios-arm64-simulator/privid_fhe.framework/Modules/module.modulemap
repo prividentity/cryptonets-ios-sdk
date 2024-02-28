@@ -1,0 +1,6 @@
+framework module privid_fhe {
+  umbrella header "privid_api_c.h"
+  export *
+  module * { export * }
+  link framework "TensorFlowLite"
+}
