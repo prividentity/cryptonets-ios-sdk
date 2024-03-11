@@ -18,13 +18,9 @@ let package = Package(
                 dependencies: [
                     .target(
                         name: "privid_fhe"
-                    ),
-                    .target(
-                        name: "TensorFlowLite"
                     )
                 ]
         ),
-        .binaryTarget(name: "privid_fhe", path: "./privid_fhe.xcframework"),
-        .binaryTarget(name: "TensorFlowLite", path: "./TensorFlowLite.xcframework"),
+        .binaryTarget(name: "privid_fhe", path: "./privid_fhe.xcframework")
     ]
 )
