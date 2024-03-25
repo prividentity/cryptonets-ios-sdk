@@ -71,16 +71,20 @@ public struct EnrollConfig: Codable {
 public struct DocumentFrontScanConfig: Codable {
     public let imageFormat: String
     public let skipAntispoof: Bool
+    public let confidenceScore: Double
     
     public init(imageFormat: String = "rgba",
-         skipAntispoof: Bool = true) {
+         skipAntispoof: Bool = true,
+         confidenceScore: Double = 0.3) {
         self.imageFormat = imageFormat
         self.skipAntispoof = skipAntispoof
+        self.confidenceScore = confidenceScore
     }
     
     enum CodingKeys: String, CodingKey {
         case imageFormat = "input_image_format"
         case skipAntispoof = "skip_antispoof"
+        case confidenceScore = "conf_score_thr_doc"
     }
 }
 

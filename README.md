@@ -286,6 +286,7 @@ This function allows you to scan data from front side of document ( government I
 DocumentFrontScanConfig has default values:
 1) imageFormat - "rgba". SDK expects rgba image format.
 2) skipAntispoof - true. Antispoof is not enabled by default.
+3) confidenceScore - Confidence score level
 
 **Returns:**
 
