@@ -71,13 +71,12 @@ A value that returns current SDK version.
 A method that creates session for SDK work. It saves session pointer inside SDK and uses it for other methods.  Please, use it before any other calls.
 
 ```swift
-    func initializeSession(apiKey: NSString, baseUrl: NSString) -> Bool
+    func initializeSession(settings: NSString) -> Bool
 ```
 
 **Parameters:**
 
-- `apiKey: NSString`: - Clien's API key.
-- `baseUrl: NSString`: - Sever URL.
+- `settings: NSString`: - Client's settings.
 
 **Returns:**
 
@@ -86,8 +85,21 @@ A method that creates session for SDK work. It saves session pointer inside SDK 
 **Example:**
 
 ```swift
+    let settings = """
+    {
+     "collections": {
+        "default": {
+            "named_urls": {
+                "base_url": "<base_url>"
+            }
+        }
+      },
+      "session_token": "<session_token>",
+      "debug_level": "<debug_level>"
+    }
+    """
     let cryptonet = CryptonetPackage()
-    let result = cryptonet.initializeSession()
+    let result = cryptonet.initializeSession(settings: settings)
 ```
 
 ## deinitializeSession
@@ -181,7 +193,7 @@ EstimageAgeConfig has default values:
 
 ## Enroll
 
-Perform a new enrollment (register a new user) using the enroll function. The function will colect 5 concecutive valid faces to be able to enroll. We would need to pass the same mfToken (Multiframe token) on success using configuration. If mfToken changes that means we had an invalid image for enroll and started again from the beginning. (Note: Concecutive 5 face needed.) When enrollment is successful after 5 concecutive valid faces, enroll is returning enrollment result.
+Perform a new enrollment (register a new user) using the enroll function. The function will colect 5 consecutive valid faces to be able to enroll. We would need to pass the same mfToken (Multiframe token) on success using configuration. If mfToken changes that means we had an invalid image for enroll and started again from the beginning. (Note: Consecutive 5 face needed.) When enrollment is successful after 5 consecutive valid faces, enroll is returning enrollment result.
 
 ```swift
     func enroll(image: UIImage, config: EnrollConfig) -> Result<String, Error>
@@ -271,6 +283,147 @@ Delete user from the system.
     let response = cryptonet.userDelete(puid: <puid: String>)
 ```
 
+## Compare document and face
+
+```swift
+    func compareDocumentAndFace(documentImage: UIImage, selfieImage: UIImage, config: DocumentAndFaceConfig) -> Result<String, Error>
+```
+
+**Parameters:**
+
+- `documentImage`: - user's document image.
+- `selfieImage`: - user's face image.
+- `DocumentAndFaceConfig`: - user's config for changing settings. 
+DocumentFrontScanAndSelfieConfig has default values:
+1) imageFormat - "rgba". SDK expects rgba image format.
+2) skipAntispoof - true. Antispoof is not enabled by default.
+
+**Returns:**
+
+- `Result<String, Error>` - String is JSON result.
+```swift
+{
+ "call_status": {
+  "return_status": 0,
+  "operation_tag": "compare_mugshot_and_face",
+  "return_message": "",
+  "mf_token": "",
+  "operation_id": 17,
+  "operation_type_id": 12
+ },
+ "face_compare": {
+  "result": 0,
+  "a_face_validation_status": 0,
+  "b_face_validation_status": 0,
+  "distance_min": 0.964277208,
+  "distance_mean": 0.964277208,
+  "distance_max": 0.964277208,
+  "conf_score": 56.8121185,
+  "face_thresholds": [],
+  "document_data": {
+   "document_conf_level": 0,
+   "cropped_document_image": {
+    "info": {
+     "width": 112,
+     "height": 112,
+     "channels": 4,
+     "depths": 0,
+     "color": 4
+    },
+    "data": ""
+   },
+   "document_validation_status": 0,
+   "status_message": "",
+   "mrz_text": []
+  },
+  "cropped_face_image": {
+   "info": {
+    "width": 112,
+    "height": 112,
+    "channels": 4,
+    "depths": 0,
+    "color": 4
+   },
+   "data": ""
+  }
+ }
+}
+```
+
+**Example:**
+
+```swift
+    let config = DocumentFrontScanAndSelfieConfig()
+    let cryptonet = CryptonetPackage()
+    let result = cryptonet.compareDocumentAndSelfieImages(documentImage: <image: UIImage>, selfieImage: <image: UIImage>, config: config)
+        switch result {
+    case .success(let json):
+        // ...
+    case .failure(_):
+        // ...
+    }
+```
+
+## Compare Faces
+
+```swift
+    func compareFaces(faceOne: UIImage, faceTwo: UIImage, config: CompareFacesConfig) -> Result<String, Error>
+```
+
+**Parameters:**
+
+- `faceOne`: - user's face image.
+- `faceTwo`: - user's face image.
+- `CompareFacesConfig`: - user's config for changing settings. 
+DocumentFrontScanAndSelfieConfig has default values:
+1) imageFormat - "rgba". SDK expects rgba image format.
+2) skipAntispoof - true. Antispoof is not enabled by default.
+3) faceMatchingThreshold - 1.24. Threshold for matching faces.
+
+**Returns:**
+
+- `Result<String, Error>` - String is JSON result.
+```swift
+{
+ "call_status": {
+  "return_status": 0,
+  "operation_tag": "compare_files",
+  "return_message": "",
+  "mf_token": "",
+  "operation_id": 11,
+  "operation_type_id": 6
+ },
+ "face_compare": {
+  "result": 1,
+  "a_face_validation_status": 0,
+  "b_face_validation_status": 0,
+  "distance_min": 0.881899476,
+  "distance_mean": 0.881899476,
+  "distance_max": 0.881899476,
+  "conf_score": 0.711803317,
+  "face_thresholds": [
+   0.3,
+   1.24,
+   0.65
+  ]
+ }
+}
+```
+
+**Example:**
+
+```swift
+    let config = CompareFilesConfig()
+    let cryptonet = CryptonetPackage()
+    let result = cryptonet.compareFaces(selfieImage: <image: UIImage>, mugshotImage: <image: UIImage>, config: config)
+        switch result {
+    case .success(let json):
+        // ...
+    case .failure(_):
+        // ...
+    }
+```
+
 ## Front Document Scan
 
 This function allows you to scan data from front side of document ( government ID or driver's license ).
@@ -286,7 +439,9 @@ This function allows you to scan data from front side of document ( government I
 DocumentFrontScanConfig has default values:
 1) imageFormat - "rgba". SDK expects rgba image format.
 2) skipAntispoof - true. Antispoof is not enabled by default.
-3) confidenceScore - Confidence score level
+3) thresholdDocX - 0.2. Minimal allowed distance (as ratio of input image width) between detected document edge and left/right sides of the input image.
+4) thresholdDocY - 0.2. Minimal allowed distance (as ratio of input image height) between detected document edge and top/bottom sides of the input image.
+5) documentAutoRotation - true. If 'false' it never tries to rotate input image to 180' degrees. 
 
 **Returns:**
 
@@ -322,6 +477,8 @@ DocumentBackScanConfig has default values:
 1) imageFormat - "rgba". SDK expects rgba image format.
 2) skipAntispoof - true. Antispoof is not enabled by default.
 3) documentScanBarcodeOnly - true. It means that it is possible to scan only barcode on document. If you need to scan the whole document you should use 'false' in this case.
+4) thresholdDocX - 0.2. Minimal allowed distance (as ratio of input image width) between detected document edge and left/right sides of the input image.
+5) thresholdDocY - 0.2. Minimal allowed distance (as ratio of input image height) between detected document edge and top/bottom sides of the input image.
 
 **Returns:**
 

@@ -17,21 +17,14 @@ public class CryptonetPackage {
         return version ?? ""
     }
     
-    public func initializeSession(apiKey: NSString, baseUrl: NSString) -> Bool {
-        let apiKeyPointer = UnsafeMutablePointer<CChar>(mutating: apiKey.utf8String)
-        let baseUrlPointer = UnsafeMutablePointer<CChar>(mutating: baseUrl.utf8String)
-        let requestTimeout: Int32 = 60000 // 1 minute in ms
-        let debugLevel: Int32 = 3
+    public func initializeSession(settings: NSString) -> Bool {
+        let settingsPointer = UnsafeMutablePointer<CChar>(mutating: settings.utf8String)
         let sessionPointer = UnsafeMutablePointer<UnsafeMutableRawPointer?>.allocate(capacity: 1)
-        
-        let isDone = privid_initialize_session(apiKeyPointer,
-                                               UInt32(apiKey.length),
-                                               baseUrlPointer,
-                                               UInt32(baseUrl.length),
-                                               requestTimeout,
-                                               debugLevel,
+
+        let isDone = privid_initialize_session(settingsPointer,
+                                               UInt32(settings.length),
                                                sessionPointer)
-        
+
         self.sessionPointer = sessionPointer.pointee
         return isDone
     }
@@ -65,14 +58,14 @@ public class CryptonetPackage {
             let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
             let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
             
-            let isDone = privid_validate(sessionPointer,
-                                         byteImageArray,
-                                         imageWidth,
-                                         imageHeight,
-                                         userConfigPointer,
-                                         Int32(userConfig.length),
-                                         bufferOut,
-                                         lengthOut)
+            let _ = privid_validate(sessionPointer,
+                                    byteImageArray,
+                                    imageWidth,
+                                    imageHeight,
+                                    userConfigPointer,
+                                    Int32(userConfig.length),
+                                    bufferOut,
+                                    lengthOut)
             
             let outputString = convertToNSString(pointer: bufferOut)
             
@@ -81,7 +74,7 @@ public class CryptonetPackage {
             bufferOut.deallocate()
             lengthOut.deallocate()
             
-            guard isDone == true, let outputString = outputString else { return .failure(CryptonetError.noJSON) }
+            guard let outputString = outputString else { return .failure(CryptonetError.noJSON) }
             return .success(outputString)
         } catch {
             return .failure(CryptonetError.failed)
@@ -108,14 +101,14 @@ public class CryptonetPackage {
             let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
             let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
             
-            let isDone =  privid_estimate_age(sessionPointer,
-                                              byteImageArray,
-                                              imageWidth,
-                                              imageHeight,
-                                              userConfigPointer,
-                                              Int32(userConfig.length),
-                                              bufferOut,
-                                              lengthOut)
+            let _ =  privid_estimate_age(sessionPointer,
+                                         byteImageArray,
+                                         imageWidth,
+                                         imageHeight,
+                                         userConfigPointer,
+                                         Int32(userConfig.length),
+                                         bufferOut,
+                                         lengthOut)
             
             let outputString = convertToNSString(pointer: bufferOut)
             
@@ -124,7 +117,7 @@ public class CryptonetPackage {
             bufferOut.deallocate()
             lengthOut.deallocate()
             
-            guard isDone == true, let outputString = outputString else { return .failure(CryptonetError.noJSON) }
+            guard let outputString = outputString else { return .failure(CryptonetError.noJSON) }
             return .success(outputString)
         } catch {
             return .failure(CryptonetError.failed)
@@ -239,9 +232,12 @@ public class CryptonetPackage {
         let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
         let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
         
+        let userConfig = NSString(string: "{}")
+        let userConfigPointer = UnsafeMutablePointer<CChar>(mutating: userConfig.utf8String)
+        
         let _ = privid_user_delete(sessionPointer,
-                                   nil,
-                                   0,
+                                   userConfigPointer,
+                                   Int32(userConfig.length),
                                    puidPointer,
                                    Int32(puid.length),
                                    bufferOut,
@@ -306,11 +302,11 @@ public class CryptonetPackage {
                 do {
                     let model = try JSONDecoder().decode(ScanDocumentFaceModel.self, from: jsonData)
                     documentImage = createImageFromRawData(rawData: croppedDocOut.pointee,
-                                                           width: model.croppedDocWidth,
-                                                           height: model.croppedDocHeight)
+                                                           width: model.docFace?.documentData?.croppedDocumentImage?.info?.width,
+                                                           height: model.docFace?.documentData?.croppedDocumentImage?.info?.height)
                     faceImage = createImageFromRawData(rawData: croppedFaceOut.pointee,
-                                                       width: model.croppedFaceWidth,
-                                                       height: model.croppedFaceHeight)
+                                                       width: model.docFace?.croppedFaceImage?.info?.width,
+                                                       height: model.docFace?.croppedFaceImage?.info?.height)
                     return .success(ScanModel(json: outputString, documentImage: documentImage, mugshotImage: faceImage))
                 } catch {
                     return .success(ScanModel(json: outputString, documentImage: nil, mugshotImage: nil))
@@ -388,11 +384,11 @@ public class CryptonetPackage {
                     let model = try JSONDecoder().decode(BarcodeDocumentModel.self, from: jsonData)
                     
                     documentImage = createImageFromRawData(rawData: croppedDocOut.pointee,
-                                                           width: model.cropDocWidth,
-                                                           height: model.cropDocHeight)
+                                                           width: model.barcode?.documentData?.croppedDocumentImage?.info?.width ?? 0,
+                                                           height: model.barcode?.documentData?.croppedDocumentImage?.info?.height ?? 0)
                     barcodeImage = createImageFromRawData(rawData: croppedBarcodeOut.pointee,
-                                                          width: model.cropBarcodeWidth,
-                                                          height: model.cropBarcodeHeight)
+                                                          width: model.barcode?.documentBarcodeData?.croppedBarcodeImage?.info?.width ?? 0,
+                                                          height: model.barcode?.documentBarcodeData?.croppedBarcodeImage?.info?.height)
                 } catch {
                     print(error.localizedDescription)
                 }
@@ -411,6 +407,149 @@ public class CryptonetPackage {
             
             guard let outputString = outputString else { return .failure(CryptonetError.noJSON) }
             return .success(ScanModel(json: outputString, documentImage: documentImage, mugshotImage: barcodeImage))
+        } catch {
+            return .failure(CryptonetError.failed)
+        }
+    }
+    
+    public func compareDocumentAndFace(documentImage: UIImage, selfieImage: UIImage, config: DocumentAndFaceConfig) -> Result<String, Error> {
+            guard let sessionPointer = self.sessionPointer else {
+                return .failure(CryptonetError.failed)
+            }
+            
+            guard let resizedDocumentImage = documentImage.resizeImage(targetSize: CGSize(width: 1000, height: 1000)),
+                  let resizedSelfieImage = selfieImage.resizeImage(targetSize: CGSize(width: 1000, height: 1000)),
+                  let cgDocumentImage = resizedDocumentImage.cgImage,
+                  let cgSelfieImage = resizedSelfieImage.cgImage
+            else {
+                return .failure(CryptonetError.failed)
+            }
+            
+            do {
+                let configData = try JSONEncoder().encode(config)
+                let userConfig = NSString(string: String(data: configData, encoding: .utf8)!)
+                
+                let userConfigPointer = UnsafeMutablePointer<CChar>(mutating: userConfig.utf8String)
+                
+                let byteDocumentImageArray = convertImageToRgbaRawBitmap(image: cgDocumentImage)
+                
+                let documentImageWidth = Int32(resizedDocumentImage.size.width)
+                let documentImageHeight = Int32(resizedDocumentImage.size.height)
+                
+                let byteSelfieImageArray = convertImageToRgbaRawBitmap(image: cgSelfieImage)
+                
+                let selfieImageWidth = Int32(resizedSelfieImage.size.width)
+                let selfieImageHeight = Int32(resizedSelfieImage.size.height)
+                
+                let croppedDocumentOut = UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>.allocate(capacity: 1)
+                let croppedDocumentLengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+                
+                let croppedFaceOut = UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>.allocate(capacity: 1)
+                let croppedFaceLengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+                
+                let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
+                let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+                
+                let _ = privid_compare_mugshot_and_face(sessionPointer,
+                                                        userConfigPointer,
+                                                        Int32(userConfig.length),
+                                                        byteDocumentImageArray,
+                                                        documentImageWidth,
+                                                        documentImageHeight,
+                                                        byteSelfieImageArray,
+                                                        selfieImageWidth,
+                                                        selfieImageHeight,
+                                                        croppedDocumentOut,
+                                                        croppedDocumentLengthOut,
+                                                        croppedFaceOut,
+                                                        croppedFaceLengthOut,
+                                                        bufferOut,
+                                                        lengthOut)
+                
+                guard let outputString = convertToNSString(pointer: bufferOut) else {
+                    privid_free_char_buffer(bufferOut.pointee)
+                    croppedDocumentOut.deallocate()
+                    croppedDocumentLengthOut.deallocate()
+                    croppedFaceOut.deallocate()
+                    croppedFaceLengthOut.deallocate()
+                    bufferOut.deallocate()
+                    lengthOut.deallocate()
+                    return .failure(CryptonetError.failed)
+                }
+                
+                privid_free_char_buffer(bufferOut.pointee)
+                croppedDocumentOut.deallocate()
+                croppedDocumentLengthOut.deallocate()
+                croppedFaceOut.deallocate()
+                croppedFaceLengthOut.deallocate()
+                bufferOut.deallocate()
+                lengthOut.deallocate()
+                
+                return .success(String(outputString))
+            } catch {
+                return .failure(CryptonetError.failed)
+            }
+        }
+    
+    public func compareFaces(faceOne: UIImage, faceTwo: UIImage, config: CompareFacesConfig) -> Result<String, Error> {
+        guard let sessionPointer = self.sessionPointer else {
+            return .failure(CryptonetError.failed)
+        }
+        
+        guard let resizedMugshotImage = faceOne.resizeImage(targetSize: CGSize(width: 1000, height: 1000)),
+              let resizedSelfieImage = faceTwo.resizeImage(targetSize: CGSize(width: 1000, height: 1000)),
+              let cgMugshotImage = resizedMugshotImage.cgImage,
+              let cgSelfieImage = resizedSelfieImage.cgImage
+        else {
+            return .failure(CryptonetError.failed)
+        }
+        
+        do {
+            let configData = try JSONEncoder().encode(config)
+            let userConfig = NSString(string: String(data: configData, encoding: .utf8)!)
+            
+            let userConfigPointer = UnsafeMutablePointer<CChar>(mutating: userConfig.utf8String)
+            
+            let byteMugshotImageArray = convertImageToRgbaRawBitmap(image: cgMugshotImage)
+            
+            let mugshotImageWidth = Int32(resizedMugshotImage.size.width)
+            let mugshotImageHeight = Int32(resizedMugshotImage.size.height)
+            
+            let byteSelfieImageArray = convertImageToRgbaRawBitmap(image: cgSelfieImage)
+            
+            let selfieImageWidth = Int32(resizedSelfieImage.size.width)
+            let selfieImageHeight = Int32(resizedSelfieImage.size.height)
+            
+            let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
+            let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+            
+            let _ = privid_face_compare_files(sessionPointer,
+                                              0.0,
+                                              userConfigPointer,
+                                              Int32(userConfig.length),
+                                              byteMugshotImageArray,
+                                              Int32(byteMugshotImageArray.count),
+                                              mugshotImageWidth,
+                                              mugshotImageHeight,
+                                              byteSelfieImageArray,
+                                              Int32(byteSelfieImageArray.count),
+                                              selfieImageWidth,
+                                              selfieImageHeight,
+                                              bufferOut,
+                                              lengthOut)
+            
+            guard let outputString = convertToNSString(pointer: bufferOut) else {
+                privid_free_char_buffer(bufferOut.pointee)
+                bufferOut.deallocate()
+                lengthOut.deallocate()
+                return .failure(CryptonetError.failed)
+            }
+            
+            privid_free_char_buffer(bufferOut.pointee)
+            bufferOut.deallocate()
+            lengthOut.deallocate()
+            
+            return .success(String(outputString))
         } catch {
             return .failure(CryptonetError.failed)
         }
@@ -436,7 +575,7 @@ private extension CryptonetPackage {
     
     func createImageFromRawData(rawData: UnsafeMutableRawPointer?, width: Double?, height: Double?) -> UIImage? {
         let bitsPerComponent = 8
-        let bitsPerPixel = 32
+        _ = 32
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         
         let width = Int(width ?? 0)

@@ -1,122 +1,206 @@
 import UIKit
 
- struct ScanDocumentFaceModel: Codable {
-    let error: Int?
-    let payloadType: String?
-    let imageWidth, imageHeight, docCenterX, docCenterY: Double?
-    let docX1, docY1, docX2, docY2: Double?
-    let docX3, docY3, docX4, docY4: Double?
-    let confLevel: Double?
-    let croppedDocWidth, croppedDocHeight, croppedDocChannels, docValidationStatus: Double?
-    let puid, guid, predictMessage, faceValidityMessage: String?
-    let opMessage: String?
-    let predictStatus, enrollLevel, faceValid, opStatus: Int?
-    let croppedFaceWidth, croppedFaceHeight, croppedFaceSize, croppedFaceChannels: Double?
-    var transactionId: Int?
-    var json: String?
-    var xas: Data?
-    var faceImage: UIImage?
-    var documentImage: UIImage?
+struct ScanDocumentFaceModel: Codable {
+    let callStatus: DocumentCallStatus?
+    let docFace: DocFace?
 
     enum CodingKeys: String, CodingKey {
-        case error
-        case payloadType = "payload_type"
-        case imageWidth = "image_width"
-        case imageHeight = "image_height"
-        case docCenterX = "doc_center_x"
-        case docCenterY = "doc_center_y"
-        case docX1 = "doc_x1"
-        case docY1 = "doc_y1"
-        case docX2 = "doc_x2"
-        case docY2 = "doc_y2"
-        case docX3 = "doc_x3"
-        case docY3 = "doc_y3"
-        case docX4 = "doc_x4"
-        case docY4 = "doc_y4"
-        case confLevel = "conf_level"
-        case croppedDocWidth = "cropped_doc_width"
-        case croppedDocHeight = "cropped_doc_height"
-        case croppedDocChannels = "cropped_doc_channels"
-        case docValidationStatus = "doc_validation_status"
-        case puid, guid
-        case predictMessage = "predict_message"
+        case callStatus = "call_status"
+        case docFace = "doc_face"
+    }
+}
+
+struct DocumentCallStatus: Codable {
+    let returnStatus: Int?
+    let operationTag, returnMessage, mfToken: String?
+    let operationID, operationTypeID: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case returnStatus = "return_status"
+        case operationTag = "operation_tag"
+        case returnMessage = "return_message"
+        case mfToken = "mf_token"
+        case operationID = "operation_id"
+        case operationTypeID = "operation_type_id"
+    }
+}
+
+struct DocFace: Codable {
+    let documentData: DocumentData?
+    let croppedFaceImage: CroppedImage?
+    let faceValidityMessage, uuid, guid, predictMessage: String?
+    let opMessage: String?
+    let predictStatus, enrollLevel: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case documentData = "document_data"
+        case croppedFaceImage = "cropped_face_image"
         case faceValidityMessage = "face_validity_message"
+        case uuid, guid
+        case predictMessage = "predict_message"
         case opMessage = "op_message"
         case predictStatus = "predict_status"
         case enrollLevel = "enroll_level"
-        case faceValid = "face_valid"
-        case opStatus = "op_status"
-        case croppedFaceWidth = "cropped_face_width"
-        case croppedFaceHeight = "cropped_face_height"
-        case croppedFaceSize = "cropped_face_size"
-        case croppedFaceChannels = "cropped_face_channels"
     }
 }
 
-public struct BarcodeDocumentModel: Codable {
-    let opStatus, readBarcodeResult: Int?
-    let opMessage, payloadType: String?
-    let imageWidth, imageHeight, barcodeConfScore, barcodeCX0: Double?
-    let barcodeCY0, barcodeX1, barcodeY1, barcodeX2: Double?
-    let barcodeY2, barcodeX3, barcodeY3, barcodeX4: Double?
-    let barcodeY4, cropImgTopleftX, cropImgTopleftY, cropImgBotrightX: Double?
-    let cropImgBotrightY, cropDocWidth, cropDocHeight, cropDocBytes: Double?
-    let cropDocChannels, cropBarcodeWidth, cropBarcodeHeight, cropBarcodeBytes: Double?
-    let cropBarcodeChannels: Double?
-    let type, format, documentID, customerID: String?
-    let firstName, lastName, middleName, expirationDate: String?
-    let issueDate, dateOfBirth, gender, eyeColor: String?
-    let hairColor, height, streetAddress1, streetAddress2: String?
-    let restStreetAddress1, restStreetAddress2, city, state: String?
-    let postCode, issuingCountry, firstNameTruncation, placeOfBirth: String?
-    let auditInformation, inventoryControlNumber, lastNameAlias, firstNameAlias: String?
-    let suffixAlias, nameSuffix, namePrefix, barcodeKeyString: String?
-    let barcodeKeyStringEncoding, barcodeHash64String, barcodeHash128String: String?
-    var transactionId: Int?
-    var json: String?
-    var barcodeImage: UIImage?
-    var documentImage: UIImage?
+struct CroppedImage: Codable {
+    let info: Info?
+    let data: String?
+}
+
+struct Info: Codable {
+    let width, height: Double?
+    let channels, depths, color: Int?
+}
+
+struct DocumentData: Codable {
+    let documentConfLevel: Double?
+    let documentBoxCenter: DocumentBoxCenter?
+    let croppedDocumentBox: CroppedDocumentBox?
+    let croppedDocumentImage: CroppedImage?
+    let documentValidationStatus: Int?
+    let statusMessage: String?
 
     enum CodingKeys: String, CodingKey {
-        case opStatus = "op_status"
-        case readBarcodeResult = "read_barcode_result"
-        case opMessage = "op_message"
-        case payloadType = "payload_type"
-        case imageWidth = "image_width"
-        case imageHeight = "image_height"
-        case barcodeConfScore = "barcode_conf_score"
-        case barcodeCX0 = "barcode_c_x0"
-        case barcodeCY0 = "barcode_c_y0"
-        case barcodeX1 = "barcode_x1"
-        case barcodeY1 = "barcode_y1"
-        case barcodeX2 = "barcode_x2"
-        case barcodeY2 = "barcode_y2"
-        case barcodeX3 = "barcode_x3"
-        case barcodeY3 = "barcode_y3"
-        case barcodeX4 = "barcode_x4"
-        case barcodeY4 = "barcode_y4"
-        case cropImgTopleftX = "crop_img_topleft_x"
-        case cropImgTopleftY = "crop_img_topleft_y"
-        case cropImgBotrightX = "crop_img_botright_x"
-        case cropImgBotrightY = "crop_img_botright_y"
-        case cropDocWidth = "crop_doc_width"
-        case cropDocHeight = "crop_doc_height"
-        case cropDocBytes = "crop_doc_bytes"
-        case cropDocChannels = "crop_doc_channels"
-        case cropBarcodeWidth = "crop_barcode_width"
-        case cropBarcodeHeight = "crop_barcode_height"
-        case cropBarcodeBytes = "crop_barcode_bytes"
-        case cropBarcodeChannels = "crop_barcode_channels"
-        case type, format
-        case documentID = "documentId"
-        case customerID = "customerId"
-        case firstName, lastName, middleName, expirationDate, issueDate, dateOfBirth, gender, eyeColor, hairColor, height, streetAddress1, streetAddress2
-        case restStreetAddress1 = "RestStreetAddress1"
-        case restStreetAddress2 = "RestStreetAddress2"
-        case city, state, postCode, issuingCountry, firstNameTruncation, placeOfBirth, auditInformation, inventoryControlNumber, lastNameAlias, firstNameAlias, suffixAlias, nameSuffix, namePrefix
-        case barcodeKeyString = "barcode_key_string"
-        case barcodeKeyStringEncoding = "barcode_key_string_encoding"
-        case barcodeHash64String = "barcodeHash64_string"
-        case barcodeHash128String = "barcodeHash128_string"
+        case documentConfLevel = "document_conf_level"
+        case documentBoxCenter = "document_box_center"
+        case croppedDocumentBox = "cropped_document_box"
+        case croppedDocumentImage = "cropped_document_image"
+        case documentValidationStatus = "document_validation_status"
+        case statusMessage = "status_message"
     }
 }
+
+struct CroppedDocumentBox: Codable {
+    let topLeft, topRight, bottomRight, bottomLeft: DocumentBoxCenter?
+
+    enum CodingKeys: String, CodingKey {
+        case topLeft = "top_left"
+        case topRight = "top_right"
+        case bottomRight = "bottom_right"
+        case bottomLeft = "bottom_left"
+    }
+}
+
+struct DocumentBoxCenter: Codable {
+    let x, y: Int?
+}
+
+struct BarcodeDocumentModel: Codable {
+    let callStatus: DocumentCallStatus?
+    let barcode: Barcode?
+
+    enum CodingKeys: String, CodingKey {
+        case callStatus = "call_status"
+        case barcode
+    }
+}
+
+// MARK: - Barcode
+struct Barcode: Codable {
+    let documentData: DocumentData?
+    let documentBarcodeData: DocumentBarcodeData?
+    let message: String?
+
+    enum CodingKeys: String, CodingKey {
+        case documentData = "document_data"
+        case documentBarcodeData = "document_barcode_data"
+        case message
+    }
+}
+
+// MARK: - DocumentBarcodeData
+struct DocumentBarcodeData: Codable {
+    let barcodeConfScore: Double?
+    let barcodeBoxCenter: BarcodeBoxCenter?
+    let nonCroppedBarcodeBox, croppedBarcodeBox: Box?
+    let croppedBarcodeImage: CroppedImage?
+    let barCodeDetectionStatus: Int?
+    let barcodeData: BarcodeData?
+    let statusMessage: String?
+
+    enum CodingKeys: String, CodingKey {
+        case barcodeConfScore = "barcode_conf_score"
+        case barcodeBoxCenter = "barcode_box_center"
+        case nonCroppedBarcodeBox = "non_cropped_barcode_box"
+        case croppedBarcodeBox = "cropped_barcode_box"
+        case croppedBarcodeImage = "cropped_barcode_image"
+        case barCodeDetectionStatus = "bar_code_detection_status"
+        case barcodeData = "barcode_data"
+        case statusMessage = "status_message"
+    }
+}
+
+// MARK: - BarcodeBoxCenter
+struct BarcodeBoxCenter: Codable {
+    let x, y: Double?
+}
+
+// MARK: - BarcodeData
+struct BarcodeData: Codable {
+    let type, format, text, firstName: String?
+    let lastName, middleName, expirationDate, issueDate: String?
+    let dateOfBirth, gender, eyeColor, hairColor: String?
+    let height, streetAddress1, streetAddress2, resStreetAddress1: String?
+    let resStreetAddress2, city, state, postalCode: String?
+    let customerID, documentID, issuingCountry, middleNameTruncation: String?
+    let firstNameTruncation, lastNameTruncation, placeOfBirth, auditInformation: String?
+    let inventoryControlNumber, lastNameAlias, firstNameAlias, suffixAlias: String?
+    let nameSuffix, namePrefix, barcodeKey, barcodeKeyEncoding: String?
+    let barcodeHash64, barcodeHash128, documentType: String?
+
+    enum CodingKeys: String, CodingKey {
+        case type, format, text
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case middleName = "middle_name"
+        case expirationDate = "expiration_date"
+        case issueDate = "issue_date"
+        case dateOfBirth = "date_of_birth"
+        case gender
+        case eyeColor = "eye_color"
+        case hairColor = "hair_color"
+        case height
+        case streetAddress1 = "street_address1"
+        case streetAddress2 = "street_address2"
+        case resStreetAddress1 = "res_street_address1"
+        case resStreetAddress2 = "res_street_address2"
+        case city, state
+        case postalCode = "postal_code"
+        case customerID = "customer_id"
+        case documentID = "document_id"
+        case issuingCountry = "issuing_country"
+        case middleNameTruncation = "middle_name_truncation"
+        case firstNameTruncation = "first_name_truncation"
+        case lastNameTruncation = "last_name_truncation"
+        case placeOfBirth = "place_of_birth"
+        case auditInformation = "audit_information"
+        case inventoryControlNumber = "inventory_control_number"
+        case lastNameAlias = "last_name_alias"
+        case firstNameAlias = "first_name_alias"
+        case suffixAlias = "suffix_alias"
+        case nameSuffix = "name_suffix"
+        case namePrefix = "name_prefix"
+        case barcodeKey = "barcode_key"
+        case barcodeKeyEncoding = "barcode_key_encoding"
+        case barcodeHash64 = "barcode_hash64"
+        case barcodeHash128 = "barcode_hash128"
+        case documentType = "document_type"
+    }
+}
+
+
+struct Box: Codable {
+    let confScore: Double?
+    let topLeft, bottomRight, eyeLeft, eyeRight: BarcodeBoxCenter?
+
+    enum CodingKeys: String, CodingKey {
+        case confScore = "conf_score"
+        case topLeft = "top_left"
+        case bottomRight = "bottom_right"
+        case eyeLeft = "eye_left"
+        case eyeRight = "eye_right"
+    }
+}
+
