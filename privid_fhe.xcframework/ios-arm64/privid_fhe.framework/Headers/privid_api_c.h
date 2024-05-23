@@ -30,10 +30,12 @@
 #endif // #ifdef __cplusplus
 
 /**
-* \brief Initialize the library. This is one time call to pass the temporary writable path that the library might use
+* \brief Initialize the library with the models loading directory. Should be called only once before first session initalizaiton.
+* @param models_directory Full path for the driectory with model `.data` files for loading. Should be writable if URL loading is used.
+* @param models_directory_length The size of the `models_directory` buffer without the ending null character '\0'
 */
-PRIVID_API_ATTRIB void privid_initialize_lib(const char* temp_path, const int temp_path_length);
-
+PRIVID_API_ATTRIB void privid_initialize_lib(
+    const char* models_directory, const int models_directory_length);
 
 /**
 * \brief Creates a new session and returns a pointers to it. A session is required to perform any operation.
@@ -66,14 +68,7 @@ PRIVID_API_ATTRIB void privid_set_default_configuration(void* session_ptr, int c
 */
 PRIVID_API_ATTRIB void privid_deinitialize_session(void *session_ptr);
 /**
-* \brief Free array of floats buffer allocated by library API calls (for output buffers for example). 
-* 
-* @param buffer Floating point buffer to free.  
-*
-*/
-PRIVID_API_ATTRIB void privid_free_float_buffer(float *buffer);
-/**
-* \brief Free  char,uchar or uint8_t array buffers allocated by library API calls (for output buffers for example). 
+* \brief Free  char, uchar or uint8_t array buffers allocated by library API calls (for output buffers for example). 
 * 
 * @param buffer char/unsigned char/uint8_t buffer to free.  
 *

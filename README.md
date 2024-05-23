@@ -47,261 +47,285 @@ https://github.com/prividentity/cryptonets-ios-sdk
 
 ## API Documentation
 
-## version
+### Version
 
-A value that returns current SDK version.
+A value that returns the current SDK version.
 
 ```swift
-    var version: String
+var version: String
 ```
 
 **Returns:**
 
-- `String` - value for current version.
+- `String`: value for the current version.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let version = cryptonet.version
+let cryptonet = CryptonetPackage()
+let version = cryptonet.version
 ```
 
-## initializeSession
+### Initialize Session
 
-A method that creates session for SDK work. It saves session pointer inside SDK and uses it for other methods.  Please, use it before any other calls.
+A method that creates the session for SDK work. It saves the session pointer inside the SDK and uses it for other methods. Please, use it before any other calls.
 
 ```swift
-    func initializeSession(settings: NSString) -> Bool
+func initializeSession(settings: NSString) -> Bool
 ```
 
 **Parameters:**
 
-- `settings: NSString`: - Client's settings.
+- `settings: NSString`: session initialization settings.
 
 **Returns:**
 
-- `Bool` - success bool. if session is created it will return 'true'. 
+- `Bool`: if the session is created it returns 'true'. 
 
 **Example:**
 
 ```swift
-    let settings = """
-    {
-     "collections": {
-        "default": {
-            "named_urls": {
-                "base_url": "<base_url>"
-            }
+let settings = """
+{
+ "collections": {
+    "default": {
+        "named_urls": {
+            "base_url": "<base_url>"
         }
-      },
-      "session_token": "<session_token>",
-      "debug_level": "<debug_level>"
     }
-    """
-    let cryptonet = CryptonetPackage()
-    let result = cryptonet.initializeSession(settings: settings)
+  },
+  "session_token": "<session_token>",
+  "debug_level": "<debug_level>"
+}
+"""
+let cryptonet = CryptonetPackage()
+let result = cryptonet.initializeSession(settings: settings)
 ```
 
-## deinitializeSession
+### Deinitialize Session
 
-A method that deinitializes session for SDK work. Use it when you don't need SDK anymore in your work, so it frees memory and closes the session.
+A method that deinitializes the session created before. You can call this function when you no longer need SDK in your work, so it frees memory and closes the session.
 
 ```swift
-    func deinitializeSession() -> Result<Bool, Error>
+func deinitializeSession() -> Result<Bool, Error>
 ```
 
 **Returns:**
 
-- `Result<Bool, Error>` - success bool. if session is closed it will return 'true'. 
+- `Result<Bool, Error>`: if the session is closed it returns 'true'. 
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let result = cryptonet.deinitializeSession()
+let cryptonet = CryptonetPackage()
+let result = cryptonet.deinitializeSession()
 ```
 
-## validate
+### Validate Face
 
-A function that detects if there is valid face on photo or video element.
+A function that detects if there is a valid face on the photo or video element.
 
 ```swift
-    func validate(image: UIImage, config: ValidConfig) -> Result<String, Error>
+func validate(image: UIImage, config: ValidConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `image: UIImage`: - input image for validation.
-- `config: ValidConfig`: - user's config for changing settings. 
+- `image: UIImage`: input image for validation.
+- `config: ValidConfig`: user's config for changing settings. 
 
-ValidConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
+The `ValidConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` representing the face status.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = ValidConfig()
-    let result = cryptonet.validate(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = ValidConfig()
+let result = cryptonet.validate(image: image, config: config)
+switch result {
     case .success(let json):
         // ...
     case .failure(let error):
         // ...
-    }
+}
 ```
 
+### Estimate Age
 
-## Estimate Age
-
-Estimate user's age based on photo or video element.
+Estimate the user's age based on the photo or video element.
 
 ```swift
-    func estimateAge(image: UIImage, config: EstimageAgeConfig) -> Result<String, Error>
+func estimateAge(image: UIImage, config: EstimageAgeConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `image`: - input image for estimation.
-- `EstimageAgeConfig`: - user's config for changing settings. 
-EstimageAgeConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
+- `image`: input image for estimation.
+- `EstimageAgeConfig`: user's config for changing settings. 
+
+The `EstimageAgeConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` result.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = EstimageAgeConfig()
-    let result = cryptonet.estimateAge(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = EstimageAgeConfig()
+let result = cryptonet.estimateAge(image: image, config: config)
+switch result {
     case .success(let json):
         // ...
     case .failure(_):
         // ...
-    }
+}
 ```
 
-## Enroll
+### Enroll Person
 
-Perform a new enrollment (register a new user) using the enroll function. The function will colect 5 consecutive valid faces to be able to enroll. We would need to pass the same mfToken (Multiframe token) on success using configuration. If mfToken changes that means we had an invalid image for enroll and started again from the beginning. (Note: Consecutive 5 face needed.) When enrollment is successful after 5 consecutive valid faces, enroll is returning enrollment result.
+Perform a new enrollment (register a new user) using the enroll function. The function will collect 5 consecutive, valid faces to be able to enroll. Using configuration, we must pass the same `mfToken` (Multiframe token) on success. If the `mfToken` value changes, we will have an invalid enrollment image and start again from the beginning. **Note:** 5 consecutive faces are needed. When enrollment is successful after 5 consecutive valid faces, enroll returns the enrollment result.
 
 ```swift
-    func enroll(image: UIImage, config: EnrollConfig) -> Result<String, Error>
+func enroll(image: UIImage, config: EnrollConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `image`: - input image for enrolment.
-- `EnrollConfig`: - user's config for changing settings. 
-EnrollConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
+- `image: UIImage`: input image for enrolment.
+- `config: EnrollConfig`: user's config for changing settings.
+  
+The `EnrollConfig` has default values:
 
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` result.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = EnrollConfig(mfToken: <mfToken: String>)
-    let result = cryptonet.enroll(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = EnrollConfig(mfToken: <mfToken: String>)
+let result = cryptonet.enroll(image: image, config: config)
+switch result {
     case .success(let json):
         // ...
     case .failure(_):
         // ...
-    }
+}
 ```
 
-## Predict
+### Predict Person
 
-Perform predict (authenticate a user).
+Perform predict (authenticate a user) after enrolling the user. This method returns a GUID/PUID if the prediction is successful; otherwise, face validation status and anti-spoof status code from the JSON response. You can get code descriptions at the end of the documentation. However, if the user is not enrolled in the system, this call will return a status of -1 and the message "User not enrolled."
 
 ```swift
-    func predict(image: UIImage, config: PredictConfig) -> Result<String, Error>
+func predict(image: UIImage, config: PredictConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `image`: - input image for prediction.
-- `PredictConfig`:  - user's config for changing settings. 
-PredictConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
+- `image: UIImage`: input image for prediction.
+- `config: PredictConfig`:  user's config for changing settings.
+
+The `PredictConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` result.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = PredictConfig()
-    let result = cryptonet.predict(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = PredictConfig()
+let result = cryptonet.predict(image: image, config: config)
+switch result {
     case .success(let json):
         // ...
     case .failure(_):
         // ...
-    }
+}
 ```
 
-## User Delete
+### Delete User
 
-Delete user from the system.
+Delete a user from the system.
 
 ```swift
-    func userDelete(puid: NSString) -> String?
+func userDelete(puid: NSString) -> String?
 ```
 
 **Parameters:**
 
-- `puid`: - user's identifier.
+- `puid: NSString`: user identifier.
 
 **Returns:**
 
-- `String?` - String is JSON result.
+- `String?`: string is a `JSON` result.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let response = cryptonet.userDelete(puid: <puid: String>)
+let cryptonet = CryptonetPackage()
+let response = cryptonet.userDelete(puid: <puid: String>)
 ```
 
-## Compare document and face
+### Compare Document and Face
 
 ```swift
-    func compareDocumentAndFace(documentImage: UIImage, selfieImage: UIImage, config: DocumentAndFaceConfig) -> Result<String, Error>
+func compareDocumentAndFace(documentImage: UIImage, selfieImage: UIImage, config: DocumentAndFaceConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `documentImage`: - user's document image.
-- `selfieImage`: - user's face image.
-- `DocumentAndFaceConfig`: - user's config for changing settings. 
-DocumentFrontScanAndSelfieConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
+- `documentImage: UIImage`: user's document image.
+- `selfieImage: UIImage`: user's face image.
+- `config: DocumentAndFaceConfig`: user's config for changing settings.
+  
+The `DocumentAndFaceConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` result.
+
+**Example:**
+
 ```swift
+let config = DocumentFrontScanAndSelfieConfig()
+let cryptonet = CryptonetPackage()
+let result = cryptonet.compareDocumentAndSelfieImages(documentImage: <image: UIImage>, selfieImage: <image: UIImage>, config: config)
+switch result {
+    case .success(let json):
+        // ...
+    case .failure(_):
+        // ...
+}
+```
+
+A sample JSON result:
+
+```json
 {
  "call_status": {
   "return_status": 0,
@@ -350,40 +374,45 @@ DocumentFrontScanAndSelfieConfig has default values:
 }
 ```
 
-**Example:**
+### Compare Faces
 
 ```swift
-    let config = DocumentFrontScanAndSelfieConfig()
-    let cryptonet = CryptonetPackage()
-    let result = cryptonet.compareDocumentAndSelfieImages(documentImage: <image: UIImage>, selfieImage: <image: UIImage>, config: config)
-        switch result {
-    case .success(let json):
-        // ...
-    case .failure(_):
-        // ...
-    }
-```
-
-## Compare Faces
-
-```swift
-    func compareFaces(faceOne: UIImage, faceTwo: UIImage, config: CompareFacesConfig) -> Result<String, Error>
+func compareFaces(faceOne: UIImage, faceTwo: UIImage, config: CompareFacesConfig) -> Result<String, Error>
 ```
 
 **Parameters:**
 
-- `faceOne`: - user's face image.
-- `faceTwo`: - user's face image.
-- `CompareFacesConfig`: - user's config for changing settings. 
-DocumentFrontScanAndSelfieConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
-3) faceMatchingThreshold - 1.24. Threshold for matching faces.
+- `faceOne: UIImage`: user's first image.
+- `faceTwo: UIImage`: user's second image.
+- `config: CompareFacesConfig`: user's config for changing settings.
+  
+The `CompareFacesConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
+3) `faceMatchingThreshold` - `1.24`: Threshold for matching faces.
 
 **Returns:**
 
-- `Result<String, Error>` - String is JSON result.
+- `Result<String, Error>`: string is a `JSON` result.
+
+**Example:**
+
 ```swift
+let config = CompareFilesConfig()
+let cryptonet = CryptonetPackage()
+let result = cryptonet.compareFaces(selfieImage: <image: UIImage>, mugshotImage: <image: UIImage>, config: config)
+switch result {
+    case .success(let json):
+        // ...
+    case .failure(_):
+        // ...
+}
+```
+
+A sample JSON result:
+
+```json
 {
  "call_status": {
   "return_status": 0,
@@ -410,97 +439,89 @@ DocumentFrontScanAndSelfieConfig has default values:
 }
 ```
 
-**Example:**
+### Front Document Scan
+
+This function allows you to scan data from the front side of the document (government ID or driver's license).
 
 ```swift
-    let config = CompareFilesConfig()
-    let cryptonet = CryptonetPackage()
-    let result = cryptonet.compareFaces(selfieImage: <image: UIImage>, mugshotImage: <image: UIImage>, config: config)
-        switch result {
-    case .success(let json):
-        // ...
-    case .failure(_):
-        // ...
-    }
-```
-
-## Front Document Scan
-
-This function allows you to scan data from front side of document ( government ID or driver's license ).
-
-```swift
-    func frontDocumentScan(image: UIImage, config: DocumentFrontScanConfig) -> Result<ScanModel, Error>
+func frontDocumentScan(image: UIImage, config: DocumentFrontScanConfig) -> Result<ScanModel, Error>
 ```
 
 **Parameters:**
 
-- `image`: - input image for scanning document.
-- `DocumentFrontScanConfig`: - user's config for changing settings. 
-DocumentFrontScanConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
-3) thresholdDocX - 0.2. Minimal allowed distance (as ratio of input image width) between detected document edge and left/right sides of the input image.
-4) thresholdDocY - 0.2. Minimal allowed distance (as ratio of input image height) between detected document edge and top/bottom sides of the input image.
-5) documentAutoRotation - true. If 'false' it never tries to rotate input image to 180' degrees. 
+- `image: UIImage`: input image for scanning document.
+- `config: DocumentFrontScanConfig`: user's config for changing settings.
+  
+The `DocumentFrontScanConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
+3) `thresholdDocX` - `0.2`: the minimal allowed distance (as the ratio of input image width) between the detected document edge and the left/right sides of the input image.
+4) `thresholdDocY` - `0.2`: the minimal allowed distance (as the ratio of input image height) between the detected document edge and the top/bottom sides of the input image.
+5) `documentAutoRotation` - `true`: If the value is 'true,' the function will rotate the input image several times for better detection results.
 
 **Returns:**
 
-- `Result<ScanModel, Error>` - ScanModel is object that contains JSON result, recognized document image and mugshot image ( face image of front document ).
+- `Result<ScanModel, Error>`: the `ScanModel` is an object that contains JSON result, recognized document image, and mugshot image (face image of the front document).
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = DocumentFrontScanConfig()
-    let result = cryptonet.frontDocumentScan(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = DocumentFrontScanConfig()
+let result = cryptonet.frontDocumentScan(image: image, config: config)
+switch result {
     case .success(let response):
         // ...
     case .failure(_):
         // ...
-    }
+}
 ```
 
-## Back Document Scan
+### Back Document Scan
 
-This function allows you to scan data from back side of document.
+This function allows you to scan data from the back side of the document (government ID or driver's license). This method accepts a valid image of the back side of the ID document with a PTD417 barcode. It returns a cropped document and barcode images, as well as a resulting JSON document that contains barcode parsing results, if any. Note: high input image resolution is important for better barcode parsing results.
 
 ```swift
-    func backDocumentScan(image: UIImage, config: DocumentBackScanConfig) -> Result<ScanModel, Error>
+func backDocumentScan(image: UIImage, config: DocumentBackScanConfig) -> Result<ScanModel, Error>
 ```
+
+If you want to scan the barcode, use the `documentScanBarcodeOnly` parameter equal to `true` for faster processing.
 
 **Parameters:**
 
-- `image`: - input image for scanning document.
-- `DocumentBackScanConfig`:  - user's config for changing settings. 
-DocumentBackScanConfig has default values:
-1) imageFormat - "rgba". SDK expects rgba image format.
-2) skipAntispoof - true. Antispoof is not enabled by default.
-3) documentScanBarcodeOnly - true. It means that it is possible to scan only barcode on document. If you need to scan the whole document you should use 'false' in this case.
-4) thresholdDocX - 0.2. Minimal allowed distance (as ratio of input image width) between detected document edge and left/right sides of the input image.
-5) thresholdDocY - 0.2. Minimal allowed distance (as ratio of input image height) between detected document edge and top/bottom sides of the input image.
+- `image: UIImage`: input image for scanning document.
+- `config: DocumentBackScanConfig`: user's config for changing settings.
+
+The `DocumentBackScanConfig` has default values:
+
+1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
+2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
+3) `documentScanBarcodeOnly` - `true`: if you need to scan the whole document, you should use the `false` value here.
+4) `thresholdDocX` - `0.2`: the minimal allowed distance (as the ratio of input image width) between the detected document edge and the left/right sides of the input image.
+5) `thresholdDocY` - `0.2`: the minimal allowed distance (as the ratio of input image height) between the detected document edge and top/bottom sides of the input image.
 
 **Returns:**
 
-- `Result<ScanModel, Error>` - ScanModel is object that contains JSON result, recognized document image ( if documentScanBarcodeOnly == false ) and mugshot image ( barcode image ).
+- `Result<ScanModel, Error>`: the `ScanModel` is an object that contains a `JSON` result, recognized document image (if any), and barcode image.
 
 **Example:**
 
 ```swift
-    let cryptonet = CryptonetPackage()
-    let config = DocumentBackScanConfig()
-    let result = cryptonet.backDocumentScan(image: image, config: config)
-    switch result {
+let cryptonet = CryptonetPackage()
+let config = DocumentBackScanConfig()
+let result = cryptonet.backDocumentScan(image: image, config: config)
+switch result {
     case .success(let response):
         // ...
     case .failure(_):
         // ...
-    }
+}
 ```
 
-----------------------
+## SDK Status Codes
 
-Face Captcha Status:
+### Face Validation Status
 
 * -100 Internal Error
 * -1 No Face Found
@@ -529,9 +550,7 @@ Face Captcha Status:
 * 22 Face tilted right
 * 23 Face rotated left
 
-----------------------
-
-Antispoof Status:
+### Anti-spoof Status
 
 * -100 Invalid Image
 * -5 Greyscale Image
@@ -541,8 +560,6 @@ Antispoof Status:
 * 0 Real
 * 1 Spoof
 
-----------------------
-
 ## Example App
 
 The app serves as an illustrative application to understand the capabilities of the `Cryptonets` SDK. 
@@ -551,4 +568,4 @@ The app serves as an illustrative application to understand the capabilities of 
 
 1. Install [TestFlight](https://apps.apple.com/app/testflight/id899247664) app on your device.
 2. Open the [CryptonetDemo](https://testflight.apple.com/join/LHZIJsGC) link SDK on your device.
-3. Tap `Accept` and `Install` buttons.
+3. Tap the `Accept` and `Install` buttons.
