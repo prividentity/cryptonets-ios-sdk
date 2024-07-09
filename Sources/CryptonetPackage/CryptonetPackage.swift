@@ -554,6 +554,62 @@ public class CryptonetPackage {
             return .failure(CryptonetError.failed)
         }
     }
+    
+    public func decryptEmbeddings(embeddings: NSString) -> Result<[CChar], Error> {
+        guard let sessionPointer = self.sessionPointer else {
+            return .failure(CryptonetError.failed)
+        }
+
+        let userConfig = NSString(string: "{}")
+        let userConfigPointer = UnsafeMutablePointer<CChar>(mutating: userConfig.utf8String)
+        
+        let embeddingsPointer = UnsafeMutablePointer<CChar>(mutating: embeddings.utf8String)
+
+        let bufferOut = UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>.allocate(capacity: 1)
+        let lengthOut = UnsafeMutablePointer<Int32>.allocate(capacity: 1)
+        
+        let _ = privid_get_embeddings(sessionPointer,
+                                userConfigPointer,
+                                Int32(userConfig.length),
+                                embeddingsPointer,
+                                Int32(embeddings.length),
+                                bufferOut,
+                                lengthOut)
+        
+        
+        let outArray = Array(UnsafeBufferPointer(start: bufferOut.pointee, count: Int(lengthOut.pointee)))
+    
+        privid_free_char_buffer(bufferOut.pointee)
+        bufferOut.deallocate()
+        lengthOut.deallocate()
+        
+        return .success(outArray)
+    }
+    
+    public func compareEmbeddings(embeddingsOne: [CChar], embeddingsTwo: [CChar]) -> Result<Float, Error> {
+        guard let sessionPointer = self.sessionPointer else {
+            return .failure(CryptonetError.failed)
+        }
+
+        let userConfig = NSString(string: "{}")
+        let userConfigPointer = UnsafeMutablePointer<CChar>(mutating: userConfig.utf8String)
+        
+        let bufferOne = UnsafeMutablePointer<CChar>.allocate(capacity: embeddingsOne.count)
+        bufferOne.initialize(from: embeddingsOne, count: embeddingsOne.count)
+        
+        let bufferTwo = UnsafeMutablePointer<CChar>.allocate(capacity: embeddingsTwo.count)
+        bufferTwo.initialize(from: embeddingsTwo, count: embeddingsTwo.count)
+
+        let result = privid_compare_embeddings(sessionPointer,
+                                userConfigPointer,
+                                Int32(userConfig.length),
+                                bufferOne,
+                                Int32(embeddingsOne.count),
+                                bufferTwo,
+                                Int32(embeddingsTwo.count))
+
+        return .success(result)
+    }
 }
 
 private extension CryptonetPackage {

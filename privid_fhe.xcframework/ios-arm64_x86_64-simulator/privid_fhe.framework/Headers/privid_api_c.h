@@ -20,6 +20,13 @@
 #endif // (defined(__linux__) || defined(__CYGWIN__))
 #endif // #ifdef __EMSCRIPTEN__
 
+#if defined(__APPLE__) || defined(__MACH__)
+#include <TargetConditionals.h>
+#if TARGET_OS_IPHONE == 1 || TARGET_IPHONE_SIMULATOR == 1
+#define OS_IOS
+#endif
+#endif
+
 #ifdef __cplusplus
     #include <cstdint>
     extern "C" {
@@ -542,11 +549,59 @@ PRIVID_API_ATTRIB int32_t privid_scan_document_with_no_face(
         uint8_t** cropped_doc_out, int *cropped_doc_length,
         char** result_out, int* result_out_length);
 
+#ifdef OS_IOS
+
+/**
+* \brief Decrypts the encrypted embeddings and convert them into byte array for future store/compare.
+*
+* @param *session_ptr                           The session pointer obtained from the #privid_initialize_session.
+* @param *user_config:                          User configuration in the JSON parameters. Any configuration parameter provided
+*                                               in the configuration JSON shall overwrite the default value of the parameter.
+*                                               Only provided configuration parameter shall be impacted, rest will remain to default
+* @param user_config_length:                    Length of the configuration buffer.
+* @param encrypted_embeddings                   Pointer to string with the encrypted embeddings
+* @param encrypted_embeddings_length            Size of the encrypted embeddings buffer
+* @param[out] **decrypted_embeddings            Returns decrypted embeddings bytes. The caller will have to de-allocate memory after using it.
+* @param[out] *decrypted_embeddings_length      Length of the decrypted embeddings buffer;
+*
+*/
+PRIVID_API_ATTRIB bool privid_get_embeddings(
+    void* session_ptr, const char *user_config, const int user_config_length,
+    const char* encrypted_embeddings, int encrypted_embeddings_length,
+    char** decrypted_embeddings, int* decrypted_embeddings_length);
+
+/**
+* \brief Compare two decrypted embeddings and return distance between them or -1 in case of any input errors.
+*
+* @param *session_ptr           The session pointer obtained from the #privid_initialize_session.
+* @param *user_config:          User configuration in the JSON parameters. Any configuration parameter provided
+*                               in the configuration JSON shall overwrite the default value of the parameter.
+*                               Only provided configuration parameter shall be impacted, rest will remain to default
+* @param user_config_length:    Length of the configuration buffer.
+* @param embeddings_one         Pointer to the byte array with the decrypted embeddings
+* @param embeddings_one_length  Size of the #embeddings_one buffer
+* @param embeddings_two         Pointer to the byte array with the decrypted embeddings
+* @param embeddings_two_length  Size of the #embeddings_two buffer
+*
+*/
+PRIVID_API_ATTRIB float privid_compare_embeddings(
+    void* session_ptr, const char *user_config, const int user_config_length,
+    const char* embeddings_one, int embeddings_one_length,
+    const char* embeddings_two, int embeddings_two_length);
+
+#endif // #ifdef OS_IOS
 
 /**
  * \brief gets the version of the library/wasm
 */
 PRIVID_API_ATTRIB const char* privid_get_version(void);
+
+/**
+ * \brief gets the current about_models string of the library/wasm
+ * @param *session_ptr: The session buffer which is already initialized using privid_initialized_session
+*/
+PRIVID_API_ATTRIB  void privid_about_models(void* session_ptr, char** aboutString, int* aboutStringLen);
+
 
 #ifdef __cplusplus
 }
