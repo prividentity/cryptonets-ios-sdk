@@ -568,7 +568,7 @@ PRIVID_API_ATTRIB int32_t privid_scan_document_with_no_face(
 PRIVID_API_ATTRIB bool privid_get_embeddings(
     void* session_ptr, const char *user_config, const int user_config_length,
     const char* encrypted_embeddings, int encrypted_embeddings_length,
-    char** decrypted_embeddings, int* decrypted_embeddings_length);
+    uint8_t** decrypted_embeddings, int* decrypted_embeddings_length);
 
 /**
 * \brief Compare two decrypted embeddings and return distance between them or -1 in case of any input errors.
@@ -586,8 +586,10 @@ PRIVID_API_ATTRIB bool privid_get_embeddings(
 */
 PRIVID_API_ATTRIB float privid_compare_embeddings(
     void* session_ptr, const char *user_config, const int user_config_length,
-    const char* embeddings_one, int embeddings_one_length,
-    const char* embeddings_two, int embeddings_two_length);
+    const uint8_t* embeddings_one, int embeddings_one_length,
+    const uint8_t* embeddings_two, int embeddings_two_length);
+
+PRIVID_API_ATTRIB void privid_free_uint8_buffer(uint8_t *buffer);
 
 #endif // #ifdef OS_IOS
 
