@@ -79,8 +79,8 @@ public struct DocumentFrontScanConfig: Codable {
     public init(imageFormat: String = "rgba",
          skipAntispoof: Bool = true,
          confidenceScore: Double = 0.3,
-         thresholdDocX: Double = 0.2,
-         thresholdDocY: Double = 0.2,
+         thresholdDocX: Double = 0.02,
+         thresholdDocY: Double = 0.02,
          documentAutoRotation: Bool = true) {
         self.imageFormat = imageFormat
         self.skipAntispoof = skipAntispoof
@@ -110,8 +110,8 @@ public struct DocumentBackScanConfig: Codable {
     public init(imageFormat: String = "rgba",
          skipAntispoof: Bool = true,
          documentScanBarcodeOnly: Bool = true,
-         thresholdDocX: Double = 0.2,
-         thresholdDocY: Double = 0.2) {
+         thresholdDocX: Double = 0.02,
+         thresholdDocY: Double = 0.02) {
         self.imageFormat = imageFormat
         self.skipAntispoof = skipAntispoof
         self.documentScanBarcodeOnly = documentScanBarcodeOnly
