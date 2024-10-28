@@ -75,19 +75,22 @@ public struct DocumentFrontScanConfig: Codable {
     public let thresholdDocX: Double
     public let thresholdDocY: Double
     public let documentAutoRotation: Bool
+    public let blurThreshold: Double
     
     public init(imageFormat: String = "rgba",
          skipAntispoof: Bool = true,
          confidenceScore: Double = 0.3,
          thresholdDocX: Double = 0.02,
          thresholdDocY: Double = 0.02,
-         documentAutoRotation: Bool = true) {
+         documentAutoRotation: Bool = true,
+         blurThreshold: Double = 15.0) {
         self.imageFormat = imageFormat
         self.skipAntispoof = skipAntispoof
         self.confidenceScore = confidenceScore
         self.thresholdDocX = thresholdDocX
         self.thresholdDocY = thresholdDocY
         self.documentAutoRotation = documentAutoRotation
+        self.blurThreshold = blurThreshold
     }
     
     enum CodingKeys: String, CodingKey {
@@ -97,6 +100,7 @@ public struct DocumentFrontScanConfig: Codable {
         case thresholdDocX = "threshold_doc_x"
         case thresholdDocY = "threshold_doc_y"
         case documentAutoRotation = "document_auto_rotation"
+        case blurThreshold = "blur_threshold_enroll_pred"
     }
 }
 
@@ -131,16 +135,20 @@ public struct DocumentBackScanConfig: Codable {
 public struct DocumentAndFaceConfig: Codable {
     public let imageFormat: String
     public let skipAntispoof: Bool
+    public let blurThreshold: Double
     
     public init(imageFormat: String = "rgba",
-         skipAntispoof: Bool = true) {
+         skipAntispoof: Bool = true,
+         blurThreshold: Double = 15.0) {
         self.imageFormat = imageFormat
         self.skipAntispoof = skipAntispoof
+        self.blurThreshold = blurThreshold
     }
     
     enum CodingKeys: String, CodingKey {
         case imageFormat = "input_image_format"
         case skipAntispoof = "skip_antispoof"
+        case blurThreshold = "blur_threshold_enroll_pred"
     }
 }
 
