@@ -68,7 +68,7 @@ let version = cryptonet.version
 
 ### Initialize Session
 
-A method that creates the session for SDK work. It saves the session pointer inside the SDK and uses it for other methods. Please, use it before any other calls.
+A method that creates the session for SDK work. It saves the session pointer inside the SDK for future usage. Please use it before making any other calls.
 
 ```swift
 func initializeSession(settings: NSString) -> Bool
@@ -104,7 +104,7 @@ let result = cryptonet.initializeSession(settings: settings)
 
 ### Deinitialize Session
 
-A method that deinitializes the session created before. You can call this function when you no longer need SDK in your work, so it frees memory and closes the session.
+A method that deinitializes the session created before. When you no longer need SDK in your work, you can call this function, which frees memory and closes the session.
 
 ```swift
 func deinitializeSession() -> Result<Bool, Error>
@@ -304,6 +304,7 @@ The `DocumentAndFaceConfig` has default values:
 
 1) `imageFormat` - `"rgba"`: the SDK expects the RGBA image format.
 2) `skipAntispoof` - `true`: anti-spoof is not enabled by default.
+3) `blurThreshold` - `15.0`: the threshold for marking input mugshot face as blurry. Smaller values are less restrictive, and `0.0` means no blurriness check.
 
 **Returns:**
 
@@ -459,6 +460,7 @@ The `DocumentFrontScanConfig` has default values:
 3) `thresholdDocX` - `0.2`: the minimal allowed distance (as the ratio of input image width) between the detected document edge and the left/right sides of the input image.
 4) `thresholdDocY` - `0.2`: the minimal allowed distance (as the ratio of input image height) between the detected document edge and the top/bottom sides of the input image.
 5) `documentAutoRotation` - `true`: If the value is 'true,' the function will rotate the input image several times for better detection results.
+6) `blurThreshold` - `15.0`: the threshold for marking input mugshot face as blurry. Smaller values are less restrictive, and `0.0` means no blurriness check.
 
 **Returns:**
 
@@ -480,7 +482,7 @@ switch result {
 
 ### Back Document Scan
 
-This function allows you to scan data from the back side of the document (government ID or driver's license). This method accepts a valid image of the back side of the ID document with a PTD417 barcode. It returns a cropped document and barcode images, as well as a resulting JSON document that contains barcode parsing results, if any. Note: high input image resolution is important for better barcode parsing results.
+This function allows you to scan data from the back side of the document (government ID or driver's license). This method accepts a valid image of the back side of the ID document with a PTD417 barcode. It returns a cropped document and barcode images, as well as a resulting JSON document that contains barcode parsing results, if any. Note: high input image resolution is essential for better barcode parsing results.
 
 ```swift
 func backDocumentScan(image: UIImage, config: DocumentBackScanConfig) -> Result<ScanModel, Error>
