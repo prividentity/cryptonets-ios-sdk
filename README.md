@@ -8,7 +8,7 @@
 
 ## Overview
 
-Private ID iOS SDK supports user registration with identity proofing, and user face login with FIDO Passkey, using Cryptonets fully homomorphically encrypted (FHE) for privacy and security.
+Private ID iOS SDK supports user registration with identity proofing, and user face login with FIDO Passkey, using Cryptonets homomorphic tokenization (HT) for privacy and security.
 
 Features:
 - Biometric face registration and authentication compliant with IEEE 2410-2021 Standard for Biometric Privacy, and exempt from GDPR, CCPA, BIPA, and HIPPA privacy law obligations.
